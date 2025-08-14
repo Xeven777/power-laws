@@ -399,11 +399,16 @@
             });
 
             // --- Time and Greeting Update Logic ---
-            function updateTimeAndGreeting() {
+            function updateTime() {
                 const now = new Date();
                 const hours = now.getHours();
                 const minutes = String(now.getMinutes()).padStart(2, '0');
                 timeDisplay.textContent = `${String(hours).padStart(2, '0')}:${minutes}`;
+            }
+
+            function updateGreeting() {
+                const now = new Date();
+                const hours = now.getHours();
 
                 const morningGreetings = [
                     'Good morning ☀️',
@@ -438,8 +443,6 @@
                     'See you tomorrow 🌠'
                 ];
 
-                // 5:00–10:59 => morning, 11:00–15:59 => afternoon,
-                // 16:00–18:59 => evening, 19:00–4:59 => night
                 let greetings;
                 if (hours >= 5 && hours < 11) {
                     greetings = morningGreetings;
@@ -455,8 +458,13 @@
                 greetingDisplay.textContent = greeting;
             }
 
-            updateTimeAndGreeting();
-            setInterval(updateTimeAndGreeting, 1000); // Update every second
+            // Show the daily law once on load
+            showDailyLaw();
+
+            updateTime();
+            updateGreeting();
+            setInterval(updateTime, 1000);
+            setInterval(updateGreeting, 1200000);
         });
     </script>
 </body>
