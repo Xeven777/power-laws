@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "Power-Law",
+  "version": "1.0",
+  "description": "Displays a law from The 48 Laws of Power on every new tab.",
+  "chrome_url_overrides": {
+    "newtab": "new_tab.html"
+  },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data:;"
+  }
+}
