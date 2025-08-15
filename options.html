@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Power-Law Options</title>
+    <style>
+        body {
+            font-family: Inter, system-ui, Arial;
+            background: #0b0b0b;
+            color: #fff;
+            padding: 24px
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 16px;
+            border-radius: 10px;
+            margin-bottom: 12px
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #cfcfcf
+        }
+
+        input[type="checkbox"] {
+            transform: scale(1.1);
+            margin-right: 8px
+        }
+
+        .actions {
+            margin-top: 12px
+        }
+
+        button {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: none;
+            background: #00b4d8;
+            color: #000;
+            font-weight: 600
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Power-Law — Options</h1>
+    <div class="card">
+        <label><input id="opt-show-clock" type="checkbox" /> Show clock & greeting</label>
+        <label><input id="opt-show-shortcuts" type="checkbox" /> Show shortcuts grid</label>
+        <label><input id="opt-show-laws" type="checkbox" /> Show law of the day</label>
+    </div>
+
+    <div class="card">
+        <h3>Defaults</h3>
+        <label>Default search engine
+            <select id="opt-default-engine">
+                <option value="google">Google</option>
+                <option value="bing">Bing</option>
+                <option value="ddg">DuckDuckGo</option>
+                <option value="wiki">Wikipedia</option>
+            </select>
+        </label>
+    </div>
+
+    <div class="actions">
+        <button id="save">Save</button>
+    </div>
+
+    <script src="options.js"></script>
+</body>
+
+</html>

@@ -208,13 +208,12 @@ document.addEventListener('DOMContentLoaded', () => {
     searchForm.parentNode.insertBefore(searchEnginesContainer, searchForm);
     // insert shortcuts below the form
     searchForm.parentNode.insertBefore(shortcutsContainer, searchForm.nextSibling);
-
     // Search engines definition
     const SEARCH_ENGINES = [
         { id: 'google', name: 'Google', url: 'https://www.google.com/search?q=' },
+        { id: 'bing', name: 'Bing', url: 'https://www.bing.com/search?q=' },
         { id: 'ddg', name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=' },
-        { id: 'wiki', name: 'Wikipedia', url: 'https://en.wikipedia.org/w/index.php?search=' },
-        { id: 'site', name: 'This Site', url: 'https://www.google.com/search?q=site:example.com+' }
+        { id: 'wiki', name: 'Wikipedia', url: 'https://en.wikipedia.org/w/index.php?search=' }
     ];
     let activeEngine = localStorage.getItem('activeEngine') || 'google';
 
@@ -284,14 +283,86 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderShortcuts() {
         const items = loadShortcuts();
         shortcutsContainer.innerHTML = '';
+        shortcutsContainer.setAttribute('aria-live', 'polite');
         items.forEach((s, idx) => {
             const el = document.createElement('div');
             el.className = 'shortcut';
+            el.draggable = true;
+            el.dataset.index = idx;
+            // drag handlers
+            el.addEventListener('dragstart', (ev) => {
+                ev.dataTransfer.setData('text/plain', String(idx));
+                ev.dataTransfer.effectAllowed = 'move';
+                el.classList.add('dragging');
+            });
+            el.addEventListener('dragend', () => el.classList.remove('dragging'));
+            el.addEventListener('dragover', (ev) => ev.preventDefault());
+            el.addEventListener('drop', (ev) => {
+                ev.preventDefault();
+                const from = Number(ev.dataTransfer.getData('text/plain'));
+                const to = Number(el.dataset.index);
+                reorderShortcuts(from, to);
+            });
+            const top = document.createElement('div');
+            top.className = 'shortcut-top';
+
+            const favicon = document.createElement('div');
+            favicon.className = 'favicon';
+            const img = document.createElement('img');
+            img.alt = '';
+            img.style.width = '100%';
+            img.style.height = '100%';
+            img.style.objectFit = 'cover';
+            img.src = getFaviconUrl(s.url);
+            img.addEventListener('error', () => {
+                favicon.innerHTML = '';
+                favicon.textContent = (s.title || '')[0] || '?';
+            });
+            favicon.appendChild(img);
+
             const a = document.createElement('a');
             a.href = s.url;
             a.target = '_blank';
             a.textContent = s.title;
-            el.appendChild(a);
+
+            // drag handle (visible) for desktop and touch
+            const handle = document.createElement('div');
+            handle.className = 'drag-handle';
+            handle.innerHTML = '&#x2630;';
+
+            top.appendChild(favicon);
+            top.appendChild(a);
+            top.appendChild(handle);
+            el.appendChild(top);
+
+            // touch / pointer fallback for reordering on the handle
+            (function () {
+                let touchStartY = null;
+                handle.addEventListener('touchstart', (ev) => {
+                    touchStartY = ev.touches[0].clientY;
+                    el.classList.add('dragging');
+                }, { passive: true });
+                handle.addEventListener('touchend', (ev) => {
+                    touchStartY = null;
+                    el.classList.remove('dragging');
+                });
+                handle.addEventListener('touchmove', (ev) => {
+                    ev.preventDefault();
+                    if (touchStartY === null) return;
+                    const curY = ev.touches[0].clientY;
+                    const dy = curY - touchStartY;
+                    if (Math.abs(dy) > 28) {
+                        const dir = dy > 0 ? 1 : -1;
+                        const from = Number(el.dataset.index);
+                        const to = from + dir;
+                        const list = loadShortcuts();
+                        if (to >= 0 && to < list.length) {
+                            reorderShortcuts(from, to);
+                            touchStartY = curY; // reset baseline
+                        }
+                    }
+                }, { passive: false });
+            })();
 
             const actions = document.createElement('div');
             actions.className = 'actions';
@@ -327,27 +398,119 @@ document.addEventListener('DOMContentLoaded', () => {
         shortcutsContainer.appendChild(add);
     }
 
-    function addShortcut() {
-        const title = prompt('Shortcut title');
-        if (!title) return;
-        const url = prompt('Shortcut URL (include https://)');
-        if (!url) return;
+    function reorderShortcuts(from, to) {
         const list = loadShortcuts();
-        list.push({ title, url });
+        if (from === to) return;
+        const [item] = list.splice(from, 1);
+        list.splice(to, 0, item);
         saveShortcuts(list);
         renderShortcuts();
     }
 
+    function getFaviconUrl(raw) {
+        try {
+            const url = new URL(raw);
+            // Extract domain name for the text parameter
+            const domain = url.hostname;
+            // Use first letter of domain as fallback text
+            const letter = domain.charAt(0).toUpperCase();
+            // Use xvatar service for better avatar generation
+            return `https://xvatar.vercel.app/api/avatar/${encodeURIComponent(domain)}.svg?rounded=30&size=100&text=${letter}`;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function addShortcut() {
+        // open modal to add a new shortcut
+        openModal(null);
+    }
+
+    // modal-backed edit flow
+    let editingIndex = null;
+
+    function openModal(editIndex = null) {
+        editingIndex = editIndex;
+        const modal = document.getElementById('shortcut-modal');
+        const titleInput = document.getElementById('shortcut-title');
+        const urlInput = document.getElementById('shortcut-url');
+
+        if (editIndex !== null) {
+            const sc = loadShortcuts()[editIndex];
+            titleInput.value = sc.title;
+            urlInput.value = sc.url;
+            document.getElementById('modal-title').textContent = 'Edit Shortcut';
+        } else {
+            titleInput.value = '';
+            urlInput.value = '';
+            document.getElementById('modal-title').textContent = 'Add Shortcut';
+        }
+
+        modal.classList.remove('hidden');
+        titleInput.focus();
+    }
+
     function editShortcut(idx) {
+        openModal(idx);
+    }
+
+    document.getElementById('cancel-shortcut').addEventListener('click', () => {
+        document.getElementById('shortcut-modal').classList.add('hidden');
+    });
+
+    document.getElementById('save-shortcut').addEventListener('click', () => {
+        const title = document.getElementById('shortcut-title').value.trim();
+        const url = document.getElementById('shortcut-url').value.trim();
+        if (!title || !url) return;
+
         const list = loadShortcuts();
-        const item = list[idx];
-        const title = prompt('Edit title', item.title);
-        if (!title) return;
-        const url = prompt('Edit URL', item.url);
-        if (!url) return;
-        list[idx] = { title, url };
+        if (editingIndex !== null) {
+            list[editingIndex] = { title, url };
+        } else {
+            list.push({ title, url });
+        }
         saveShortcuts(list);
         renderShortcuts();
+        document.getElementById('shortcut-modal').classList.add('hidden');
+    });
+
+    // normalize URL on save by listening to modal save wrapper
+    // intercept save buttons by wrapping save logic
+    const origSave = document.getElementById('save-shortcut');
+    origSave.addEventListener('click', () => {
+        const urlInput = document.getElementById('shortcut-url');
+        let val = urlInput.value.trim();
+        if (!val) return;
+        if (!/^https?:\/\//i.test(val)) {
+            val = 'https://' + val;
+            urlInput.value = val;
+        }
+    });
+
+    // options: hide/show UI pieces based on saved options
+    function applyOptions() {
+        const optsRaw = localStorage.getItem('pl_options');
+        const opts = optsRaw ? JSON.parse(optsRaw) : null;
+        if (!opts) return;
+        // clock
+        const right = document.querySelector('.content-right');
+        if (right) right.style.display = opts.showClock || opts.showShortcuts || opts.showLaws ? 'flex' : 'none';
+        // show/hide shortcuts grid
+        if (!opts.showShortcuts) {
+            shortcutsContainer.style.display = 'none';
+        } else {
+            shortcutsContainer.style.display = '';
+        }
+        // toggle law card
+        const lawCardEl = document.getElementById('law-card');
+        if (lawCardEl) lawCardEl.style.display = opts.showLaws ? '' : 'none';
+        // default engine
+        if (opts.defaultEngine) {
+            activeEngine = opts.defaultEngine;
+            localStorage.setItem('activeEngine', activeEngine);
+            renderEngineButtons();
+            updatePlaceholder();
+        }
     }
 
     function deleteShortcut(idx) {
