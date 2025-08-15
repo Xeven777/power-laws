@@ -313,11 +313,18 @@ document.addEventListener('DOMContentLoaded', () => {
             img.style.width = '100%';
             img.style.height = '100%';
             img.style.objectFit = 'cover';
-            img.src = getFaviconUrl(s.url);
+
+            // Try Google favicon service first
+            img.src = getGoogleFaviconUrl(s.url);
             img.addEventListener('error', () => {
-                favicon.innerHTML = '';
-                favicon.textContent = (s.title || '')[0] || '?';
-            });
+                // Fallback to xvatar service
+                img.src = getXvatarUrl(s.url);
+                img.addEventListener('error', () => {
+                    // Final fallback to text
+                    favicon.innerHTML = '';
+                    favicon.textContent = (s.title || '')[0] || '?';
+                }, { once: true });
+            }, { once: true });
             favicon.appendChild(img);
 
             const a = document.createElement('a');
@@ -405,6 +412,30 @@ document.addEventListener('DOMContentLoaded', () => {
         list.splice(to, 0, item);
         saveShortcuts(list);
         renderShortcuts();
+    }
+
+    function getGoogleFaviconUrl(raw) {
+        try {
+            const url = new URL(raw);
+            // Use Google's favicon service
+            return `https://www.google.com/s2/favicons?sz=64&domain=${url.hostname}`;
+        } catch (e) {
+            return null;
+        }
+    }
+
+    function getXvatarUrl(raw) {
+        try {
+            const url = new URL(raw);
+            // Extract domain name for the text parameter
+            const domain = url.hostname;
+            // Use first letter of domain as fallback text
+            const letter = domain.charAt(0).toUpperCase();
+            // Use xvatar service for better avatar generation
+            return `https://xvatar.vercel.app/api/avatar/${encodeURIComponent(domain)}.svg?rounded=30&size=100&text=${letter}`;
+        } catch (e) {
+            return null;
+        }
     }
 
     function getFaviconUrl(raw) {
