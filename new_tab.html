@@ -43,8 +43,8 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.15);
-            backdrop-filter: blur(2px);
+            background: rgba(20, 20, 20, 0.15);
+            /* backdrop-filter: blur(2px); */
         }
 
         main {
@@ -53,7 +53,7 @@
             height: 100%;
             display: flex;
             justify-content: space-between;
-            align-items: flex-end;
+            align-items: center;
             /* Align items to the bottom */
             padding: 4vw 5vw;
         }
@@ -141,6 +141,69 @@
         .search-input::placeholder {
             color: var(--text-color-muted);
             opacity: 0.8;
+        }
+
+        .search-engines {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-bottom: 6px;
+        }
+
+        .engine-btn {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-color);
+            border: 1px solid transparent;
+            padding: 6px 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            cursor: pointer;
+        }
+
+        .engine-btn.active {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.12);
+        }
+
+        .shortcuts {
+            margin-top: 18px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+            gap: 10px;
+        }
+
+        .shortcut {
+            background: rgba(0, 0, 0, 0.12);
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            justify-content: space-between;
+        }
+
+        .shortcut a {
+            color: var(--text-color);
+            text-decoration: none;
+            flex: 1;
+            font-size: 0.9rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .shortcut .actions {
+            display: flex;
+            gap: 6px;
+            margin-left: 6px;
+        }
+
+        .icon-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-color-muted);
+            cursor: pointer;
+            font-size: 0.9rem;
         }
 
         footer {

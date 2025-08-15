@@ -198,6 +198,170 @@ document.addEventListener('DOMContentLoaded', () => {
     const lawTitleDisplay = document.getElementById('law-title-display');
     const lawDescriptionDisplay = document.getElementById('law-description-display');
     const greetingDisplay = document.getElementById('greeting');
+    const searchForm = document.querySelector('.search-form');
+    const searchInput = document.querySelector('.search-input');
+    const searchEnginesContainer = document.createElement('div');
+    searchEnginesContainer.className = 'search-engines';
+    const shortcutsContainer = document.createElement('div');
+    shortcutsContainer.className = 'shortcuts';
+    // insert search engines above the form
+    searchForm.parentNode.insertBefore(searchEnginesContainer, searchForm);
+    // insert shortcuts below the form
+    searchForm.parentNode.insertBefore(shortcutsContainer, searchForm.nextSibling);
+
+    // Search engines definition
+    const SEARCH_ENGINES = [
+        { id: 'google', name: 'Google', url: 'https://www.google.com/search?q=' },
+        { id: 'ddg', name: 'DuckDuckGo', url: 'https://duckduckgo.com/?q=' },
+        { id: 'wiki', name: 'Wikipedia', url: 'https://en.wikipedia.org/w/index.php?search=' },
+        { id: 'site', name: 'This Site', url: 'https://www.google.com/search?q=site:example.com+' }
+    ];
+    let activeEngine = localStorage.getItem('activeEngine') || 'google';
+
+    function renderEngineButtons() {
+        searchEnginesContainer.innerHTML = '';
+        SEARCH_ENGINES.forEach(e => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'engine-btn' + (e.id === activeEngine ? ' active' : '');
+            btn.textContent = e.name;
+            btn.title = `Use ${e.name}`;
+            btn.addEventListener('click', () => {
+                activeEngine = e.id;
+                localStorage.setItem('activeEngine', activeEngine);
+                renderEngineButtons();
+                updatePlaceholder();
+            });
+            searchEnginesContainer.appendChild(btn);
+        });
+    }
+
+    function updatePlaceholder() {
+        const engine = SEARCH_ENGINES.find(s => s.id === activeEngine);
+        if (!engine) return;
+        searchInput.placeholder = `Search ${engine.name}...`;
+    }
+
+    // handle form submit to redirect to chosen engine
+    searchForm.addEventListener('submit', (ev) => {
+        ev.preventDefault();
+        const q = encodeURIComponent(searchInput.value.trim());
+        if (!q) return;
+        const engine = SEARCH_ENGINES.find(s => s.id === activeEngine) || SEARCH_ENGINES[0];
+        const url = engine.url + q;
+        window.open(url, '_blank');
+        searchInput.value = '';
+    });
+
+    // keyboard shortcut: press / to focus search
+    document.addEventListener('keydown', (e) => {
+        if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+            e.preventDefault();
+            searchInput.focus();
+        }
+    });
+
+    // --- Shortcuts Grid ---
+    const DEFAULT_SHORTCUTS = [
+        { title: 'GitHub', url: 'https://github.com' },
+        { title: 'StackOverflow', url: 'https://stackoverflow.com' },
+        { title: 'Reddit', url: 'https://reddit.com' }
+    ];
+
+    function loadShortcuts() {
+        try {
+            const raw = localStorage.getItem('shortcuts');
+            return raw ? JSON.parse(raw) : DEFAULT_SHORTCUTS;
+        } catch (err) {
+            return DEFAULT_SHORTCUTS;
+        }
+    }
+
+    function saveShortcuts(list) {
+        localStorage.setItem('shortcuts', JSON.stringify(list));
+    }
+
+    function renderShortcuts() {
+        const items = loadShortcuts();
+        shortcutsContainer.innerHTML = '';
+        items.forEach((s, idx) => {
+            const el = document.createElement('div');
+            el.className = 'shortcut';
+            const a = document.createElement('a');
+            a.href = s.url;
+            a.target = '_blank';
+            a.textContent = s.title;
+            el.appendChild(a);
+
+            const actions = document.createElement('div');
+            actions.className = 'actions';
+            const editBtn = document.createElement('button');
+            editBtn.className = 'icon-btn';
+            editBtn.title = 'Edit';
+            editBtn.textContent = '\u270E';
+            editBtn.addEventListener('click', () => editShortcut(idx));
+
+            const delBtn = document.createElement('button');
+            delBtn.className = 'icon-btn';
+            delBtn.title = 'Delete';
+            delBtn.textContent = '\u2716';
+            delBtn.addEventListener('click', () => deleteShortcut(idx));
+
+            actions.appendChild(editBtn);
+            actions.appendChild(delBtn);
+            el.appendChild(actions);
+            shortcutsContainer.appendChild(el);
+        });
+
+        // add-new tile
+        const add = document.createElement('div');
+        add.className = 'shortcut';
+        const addA = document.createElement('a');
+        addA.href = '#';
+        addA.textContent = '+ Add';
+        addA.addEventListener('click', (ev) => {
+            ev.preventDefault();
+            addShortcut();
+        });
+        add.appendChild(addA);
+        shortcutsContainer.appendChild(add);
+    }
+
+    function addShortcut() {
+        const title = prompt('Shortcut title');
+        if (!title) return;
+        const url = prompt('Shortcut URL (include https://)');
+        if (!url) return;
+        const list = loadShortcuts();
+        list.push({ title, url });
+        saveShortcuts(list);
+        renderShortcuts();
+    }
+
+    function editShortcut(idx) {
+        const list = loadShortcuts();
+        const item = list[idx];
+        const title = prompt('Edit title', item.title);
+        if (!title) return;
+        const url = prompt('Edit URL', item.url);
+        if (!url) return;
+        list[idx] = { title, url };
+        saveShortcuts(list);
+        renderShortcuts();
+    }
+
+    function deleteShortcut(idx) {
+        const list = loadShortcuts();
+        if (!confirm(`Delete "${list[idx].title}"?`)) return;
+        list.splice(idx, 1);
+        saveShortcuts(list);
+        renderShortcuts();
+    }
+
+    // initialize components
+    renderEngineButtons();
+    updatePlaceholder();
+    renderShortcuts();
 
     // --- Law of the Day Logic ---
     function showDailyLaw() {
