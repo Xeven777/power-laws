@@ -267,6 +267,9 @@ document.addEventListener('DOMContentLoaded', () => {
         { title: 'Reddit', url: 'https://reddit.com' }
     ];
 
+    // maximum allowed shortcuts
+    const MAX_SHORTCUTS = 7;
+
     function loadShortcuts() {
         try {
             const raw = localStorage.getItem('shortcuts');
@@ -293,9 +296,8 @@ document.addEventListener('DOMContentLoaded', () => {
             el.addEventListener('dragstart', (ev) => {
                 ev.dataTransfer.setData('text/plain', String(idx));
                 ev.dataTransfer.effectAllowed = 'move';
-                el.classList.add('dragging');
             });
-            el.addEventListener('dragend', () => el.classList.remove('dragging'));
+            el.addEventListener('dragend', () => { });
             el.addEventListener('dragover', (ev) => ev.preventDefault());
             el.addEventListener('drop', (ev) => {
                 ev.preventDefault();
@@ -303,8 +305,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const to = Number(el.dataset.index);
                 reorderShortcuts(from, to);
             });
-            const top = document.createElement('div');
-            top.className = 'shortcut-top';
 
             const favicon = document.createElement('div');
             favicon.className = 'favicon';
@@ -327,35 +327,44 @@ document.addEventListener('DOMContentLoaded', () => {
             }, { once: true });
             favicon.appendChild(img);
 
-            const a = document.createElement('a');
-            a.href = s.url;
-            a.target = '_blank';
-            a.textContent = s.title;
-
             // drag handle (visible) for desktop and touch
             const handle = document.createElement('div');
             handle.className = 'drag-handle';
             handle.innerHTML = '&#x2630;';
 
+            // Make entire shortcut clickable
+            el.style.cursor = 'pointer';
+            el.addEventListener('click', (ev) => {
+                // Don't trigger if clicking on handle or action buttons
+                if (ev.target.closest('.drag-handle') || ev.target.closest('.actions')) {
+                    return;
+                }
+                window.open(s.url, '_blank');
+            });
+
+            const titleEl = document.createElement('div');
+            titleEl.textContent = s.title;
+            titleEl.style.marginTop = '8px';
+            titleEl.style.fontSize = '0.86rem';
+            titleEl.style.overflow = 'hidden';
+            titleEl.style.textOverflow = 'ellipsis';
+            titleEl.style.whiteSpace = 'nowrap';
+            titleEl.style.width = '100%';
+            titleEl.style.textAlign = 'center';
+            titleEl.style.color = 'var(--text-color)';
+
             el.appendChild(handle);
             el.appendChild(favicon);
-            const titleWrapper = document.createElement('div');
-            titleWrapper.style.width = '100%';
-            titleWrapper.style.display = 'flex';
-            titleWrapper.style.justifyContent = 'center';
-            titleWrapper.appendChild(a);
-            el.appendChild(titleWrapper);
+            el.appendChild(titleEl);
 
             // touch / pointer fallback for reordering on the handle
             (function () {
                 let touchStartY = null;
                 handle.addEventListener('touchstart', (ev) => {
                     touchStartY = ev.touches[0].clientY;
-                    el.classList.add('dragging');
                 }, { passive: true });
                 handle.addEventListener('touchend', (ev) => {
                     touchStartY = null;
-                    el.classList.remove('dragging');
                 });
                 handle.addEventListener('touchmove', (ev) => {
                     ev.preventDefault();
@@ -395,18 +404,29 @@ document.addEventListener('DOMContentLoaded', () => {
             shortcutsContainer.appendChild(el);
         });
 
-        // add-new tile
-        const add = document.createElement('div');
-        add.className = 'shortcut';
-        const addA = document.createElement('a');
-        addA.href = '#';
-        addA.textContent = '+ Add';
-        addA.addEventListener('click', (ev) => {
-            ev.preventDefault();
-            addShortcut();
-        });
-        add.appendChild(addA);
-        shortcutsContainer.appendChild(add);
+        // add-new tile (only if under limit)
+        const currentList = loadShortcuts();
+        if (currentList.length < MAX_SHORTCUTS) {
+            const add = document.createElement('div');
+            add.className = 'shortcut';
+            add.style.cursor = 'pointer';
+            add.style.display = 'flex';
+            add.style.alignItems = 'center';
+            add.style.justifyContent = 'center';
+
+            const addText = document.createElement('div');
+            addText.textContent = '+ Add';
+            addText.style.fontSize = '0.86rem';
+            addText.style.color = 'var(--text-color)';
+            addText.style.textAlign = 'center';
+
+            add.addEventListener('click', () => {
+                addShortcut();
+            });
+
+            add.appendChild(addText);
+            shortcutsContainer.appendChild(add);
+        }
     }
 
     function reorderShortcuts(from, to) {
@@ -502,6 +522,10 @@ document.addEventListener('DOMContentLoaded', () => {
         if (editingIndex !== null) {
             list[editingIndex] = { title, url };
         } else {
+            if (list.length >= MAX_SHORTCUTS) {
+                alert(`You can only have up to ${MAX_SHORTCUTS} shortcuts.`);
+                return;
+            }
             list.push({ title, url });
         }
         saveShortcuts(list);
