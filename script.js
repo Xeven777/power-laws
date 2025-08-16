@@ -337,10 +337,14 @@ document.addEventListener('DOMContentLoaded', () => {
             handle.className = 'drag-handle';
             handle.innerHTML = '&#x2630;';
 
-            top.appendChild(favicon);
-            top.appendChild(a);
-            top.appendChild(handle);
-            el.appendChild(top);
+            el.appendChild(handle);
+            el.appendChild(favicon);
+            const titleWrapper = document.createElement('div');
+            titleWrapper.style.width = '100%';
+            titleWrapper.style.display = 'flex';
+            titleWrapper.style.justifyContent = 'center';
+            titleWrapper.appendChild(a);
+            el.appendChild(titleWrapper);
 
             // touch / pointer fallback for reordering on the handle
             (function () {
