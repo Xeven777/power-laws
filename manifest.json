@@ -16,6 +16,6 @@
     "512": "icons/favicon-512x512.png"
   },
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://images.unsplash.com https://www.google.com https://t1.gstatic.com https://t2.gstatic.com https://t3.gstatic.com https://t4.gstatic.com https://t0.gstatic.com https://xvatar.vercel.app;"
+    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https://images.unsplash.com https://www.google.com https://t1.gstatic.com https://t2.gstatic.com https://t3.gstatic.com https://t4.gstatic.com https://t0.gstatic.com https://xvatar.vercel.app https://images.pexels.com;"
   }
 }
