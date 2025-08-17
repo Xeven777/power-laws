@@ -549,11 +549,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // options: hide/show UI pieces based on saved options
     function applyOptions() {
         const optsRaw = localStorage.getItem('pl_options');
-        const opts = optsRaw ? JSON.parse(optsRaw) : null;
-        if (!opts) return;
-        // clock
-        const right = document.querySelector('.content-right');
-        if (right) right.style.display = opts.showClock || opts.showShortcuts || opts.showLaws ? 'flex' : 'none';
+        // Default options in case nothing is saved
+        const defaultOpts = {
+            showClock: true,
+            showShortcuts: true,
+            showLaws: true,
+            defaultEngine: 'google',
+            backgroundImage: ''
+        };
+        const opts = optsRaw ? { ...defaultOpts, ...JSON.parse(optsRaw) } : defaultOpts;
+
+        // show/hide clock
+        const timeDisplay = document.getElementById('time');
+        const greetingEl = document.getElementById('greeting');
+        if (timeDisplay) timeDisplay.style.display = opts.showClock ? '' : 'none';
+        if (greetingEl) greetingEl.style.display = opts.showClock ? '' : 'none';
+
         // show/hide shortcuts grid
         if (!opts.showShortcuts) {
             shortcutsContainer.style.display = 'none';
@@ -580,6 +591,12 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (e) {
                 // ignore invalid URLs
             }
+        } else {
+            // Reset to default background
+            document.body.style.backgroundImage = 'url("https://images.unsplash.com/photo-1754851335870-1c92f9b91022?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")';
+            document.body.style.backgroundSize = 'cover';
+            document.body.style.backgroundRepeat = 'no-repeat';
+            document.body.style.backgroundPosition = 'center center';
         }
     }
 
@@ -682,4 +699,19 @@ document.addEventListener('DOMContentLoaded', () => {
     updateGreeting();
     setInterval(updateTime, 1000);
     setInterval(updateGreeting, 1200000);
+
+    // Apply saved options on page load
+    applyOptions();
+
+    // Re-apply options when page becomes visible (e.g., coming back from options page)
+    document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) {
+            applyOptions();
+        }
+    });
+
+    // Also listen for focus events
+    window.addEventListener('focus', () => {
+        applyOptions();
+    });
 });
