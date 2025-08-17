@@ -589,6 +589,17 @@
                         <span class="knob"></span>
                     </label>
                 </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="opt-bg-image">Background Image URL</label>
+                    <input id="opt-bg-image" type="url" placeholder="https://images.unsplash.com/photo-..." />
+                    <div class="setting-description" style="margin-top:8px;">Paste an Unsplash or Pexels image link to
+                        use as the new tab background. Leave empty to use the default image.</div>
+                    <div style="margin-top:10px;">
+                        <img id="bg-preview" alt="Preview"
+                            style="width:100%;max-height:160px;object-fit:cover;border-radius:8px;display:none;border:1px solid rgba(255,255,255,0.06);" />
+                    </div>
+                </div>
             </div>
 
             <div class="card" aria-labelledby="search-settings">

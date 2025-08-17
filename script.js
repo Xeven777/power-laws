@@ -570,6 +570,17 @@ document.addEventListener('DOMContentLoaded', () => {
             renderEngineButtons();
             updatePlaceholder();
         }
+        // background image
+        if (opts.backgroundImage) {
+            try {
+                document.body.style.backgroundImage = `url("${opts.backgroundImage}")`;
+                document.body.style.backgroundSize = 'cover';
+                document.body.style.backgroundRepeat = 'no-repeat';
+                document.body.style.backgroundPosition = 'center center';
+            } catch (e) {
+                // ignore invalid URLs
+            }
+        }
     }
 
     function deleteShortcut(idx) {

@@ -2,7 +2,8 @@ const DEFAULT_OPTIONS = {
     showClock: true,
     showShortcuts: true,
     showLaws: true,
-    defaultEngine: 'google'
+    defaultEngine: 'google',
+    backgroundImage: ''
 };
 
 function loadOptions() {
@@ -40,7 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
             showClock: document.getElementById('opt-show-clock').checked,
             showShortcuts: document.getElementById('opt-show-shortcuts').checked,
             showLaws: document.getElementById('opt-show-laws').checked,
-            defaultEngine: document.getElementById('opt-default-engine').value
+            defaultEngine: document.getElementById('opt-default-engine').value,
+            backgroundImage: document.getElementById('opt-bg-image').value.trim()
         };
     }
 
@@ -49,11 +51,33 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('opt-show-shortcuts').checked = !!opts.showShortcuts;
         document.getElementById('opt-show-laws').checked = !!opts.showLaws;
         document.getElementById('opt-default-engine').value = opts.defaultEngine || 'google';
+        document.getElementById('opt-bg-image').value = opts.backgroundImage || '';
+        updatePreview();
         syncSwitches();
     }
 
+    // live preview of background image
+    const bgInput = document.getElementById('opt-bg-image');
+    const bgPreview = document.getElementById('bg-preview');
+    function updatePreview() {
+        const url = bgInput.value.trim();
+        if (!url) {
+            bgPreview.style.display = 'none';
+            bgPreview.src = '';
+            return;
+        }
+        // try to show preview
+        bgPreview.style.display = 'block';
+        bgPreview.src = url;
+    }
+    bgInput.addEventListener('input', updatePreview);
+
     saveBtn.addEventListener('click', () => {
         const newOpts = readUi();
+        // normalize background image URL
+        if (newOpts.backgroundImage && !/^https?:\/\//i.test(newOpts.backgroundImage)) {
+            newOpts.backgroundImage = 'https://' + newOpts.backgroundImage;
+        }
         saveOptions(newOpts);
         showToast('Options saved');
     });

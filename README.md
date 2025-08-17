@@ -2,10 +2,12 @@
 
 # Power-Law Chrome Extension
 
-<img src="logo.png" alt="Power-Laws Chrome Extension" width="300px">
+<img src="logo.png" alt="Power-Laws Chrome Extension" width="200px">
 </div>
 
-### Displays a law from "The 48 Laws of Power" on every new tab, with a customizable search bar, shortcuts grid, clock, and greeting.
+## Displays a law from "The 48 Laws of Power" on every new tab, with a customizable search bar, shortcuts grid, clock, and greeting.
+
+![text](img1.png)
 
 ## Features
 
