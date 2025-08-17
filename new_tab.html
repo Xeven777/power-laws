@@ -13,7 +13,7 @@
     <style>
         :root {
             --text-color: rgba(255, 255, 255, 0.9);
-            --text-color-muted: rgba(255, 255, 255, 0.7);
+            --text-color-muted: rgba(255, 255, 255, 0.8);
             --text-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
         }
 
@@ -83,13 +83,13 @@
 
         .law-title {
             font-size: 1.1rem;
-            font-weight: 500;
+            font-weight: 600;
             margin-bottom: 8px;
         }
 
         .law-description {
-            font-size: 0.9rem;
-            line-height: 1.6;
+            font-size: 1rem;
+            line-height: 1.4;
             font-weight: 300;
             color: var(--text-color-muted);
             max-height: 0;
@@ -111,13 +111,14 @@
         }
 
         .time-display {
-            font-size: clamp(6rem, 15vw, 9rem);
+            font-size: clamp(5rem, 7vw, 7.5rem);
+            letter-spacing: 3px;
             font-weight: 500;
             line-height: 1;
         }
 
         .greeting {
-            font-size: 1.2rem;
+            font-size: clamp(0.7rem, 1.4vw, 1rem);
             font-weight: 400;
             color: var(--text-color-muted);
             margin: 8px 0 16px;
@@ -129,7 +130,7 @@
 
         .search-input {
             width: 300px;
-            background: transparent;
+            background: rgba(49, 49, 49, 0.2);
             border: none;
             border-bottom: 2px solid var(--text-color-muted);
             color: var(--text-color);
@@ -137,13 +138,14 @@
             padding: 8px;
             text-align: right;
             transition: border-bottom-color 0.3s ease;
+            backdrop-filter: blur(1px);
         }
 
         .search-input:focus {
             outline: none;
             border-bottom-color: var(--text-color);
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
-            backdrop-filter: blur(2px);
+            backdrop-filter: blur(4px);
         }
 
         .search-input::placeholder {
@@ -196,13 +198,14 @@
             border-radius: 12px;
             margin-top: 0.5rem;
             text-align: center;
-            min-height: 112px;
-            transition: transform 0.18s ease, box-shadow 0.18s ease;
+            min-height: 80px;
+            backdrop-filter: blur(1px);
+            transition: all 0.18s ease;
         }
 
         .shortcut:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 14px rgba(20, 20, 20, 0.4);
         }
 
         .shortcut .drag-handle {
@@ -285,6 +288,54 @@
             font-size: 0.75rem;
             color: var(--text-color-muted);
             opacity: 0.7;
+        }
+
+        footer a {
+            color: var(--text-color-muted);
+            text-decoration: none;
+        }
+
+        /* ---------- Options Link (bottom-left) ---------- */
+        .options-link {
+            position: fixed;
+            left: 20px;
+            bottom: 20px;
+            z-index: 200;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.04);
+            color: var(--text-color);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            text-decoration: none;
+            backdrop-filter: blur(6px);
+            transition: transform 140ms ease, background 140ms ease;
+        }
+
+        .options-link:hover {
+            transform: translateY(-3px);
+            background: rgba(255, 255, 255, 0.08);
+        }
+
+        .options-link:focus {
+            outline: 2px solid rgba(0, 180, 216, 0.9);
+            outline-offset: 2px;
+        }
+
+        .options-link .icon {
+            font-size: 1.05rem;
+            line-height: 1;
+            pointer-events: none;
+        }
+
+        /* SVG sizing inside options link */
+        .options-link svg {
+            width: 22px;
+            height: 22px;
+            display: block;
         }
 
         /* ---------- Modal ---------- */
@@ -478,8 +529,19 @@
     </main>
 
     <footer>
-        BY XEVEN
+        BY <a href="https://git.new/anish" target="_blank" rel="noopener noreferrer"> XEVEN</a>
     </footer>
+
+    <a class="options-link" href="options.html" title="Open options" aria-label="Open options page">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+            class="lucide lucide-settings-icon lucide-settings">
+            <path
+                d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915" />
+            <circle cx="12" cy="12" r="3" />
+        </svg>
+        </span>
+    </a>
 
     <script src="script.js"></script>
 </body>

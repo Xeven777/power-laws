@@ -416,7 +416,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const addText = document.createElement('div');
             addText.textContent = '+ Add';
-            addText.style.fontSize = '0.86rem';
+            addText.style.fontSize = '1rem';
             addText.style.color = 'var(--text-color)';
             addText.style.textAlign = 'center';
 
