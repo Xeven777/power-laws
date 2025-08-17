@@ -593,7 +593,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else {
             // Reset to default background
-            document.body.style.backgroundImage = 'url("https://images.unsplash.com/photo-1754851335870-1c92f9b91022?q=80&w=1932&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D")';
+            document.body.style.backgroundImage = 'url("https://images.pexels.com/photos/2647990/pexels-photo-2647990.jpeg")';
             document.body.style.backgroundSize = 'cover';
             document.body.style.backgroundRepeat = 'no-repeat';
             document.body.style.backgroundPosition = 'center center';

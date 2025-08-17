@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('opt-show-shortcuts').checked = !!opts.showShortcuts;
     document.getElementById('opt-show-laws').checked = !!opts.showLaws;
     document.getElementById('opt-default-engine').value = opts.defaultEngine || 'google';
+    document.getElementById('opt-bg-image').value = opts.backgroundImage || '';
 
     const saveBtn = document.getElementById('save');
     const resetBtn = document.getElementById('reset');
@@ -59,17 +60,36 @@ document.addEventListener('DOMContentLoaded', () => {
     // live preview of background image
     const bgInput = document.getElementById('opt-bg-image');
     const bgPreview = document.getElementById('bg-preview');
+    const previewContainer = document.querySelector('.bg-preview-container');
+    const previewPlaceholder = document.querySelector('.preview-placeholder');
+
     function updatePreview() {
         const url = bgInput.value.trim();
         if (!url) {
-            bgPreview.style.display = 'none';
+            bgPreview.classList.remove('show');
+            previewPlaceholder.classList.remove('hide');
+            previewContainer.classList.remove('has-image');
             bgPreview.src = '';
             return;
         }
-        // try to show preview
-        bgPreview.style.display = 'block';
-        bgPreview.src = url;
+
+        // Create a new image to test if URL is valid
+        const testImg = new Image();
+        testImg.onload = () => {
+            bgPreview.src = url;
+            bgPreview.classList.add('show');
+            previewPlaceholder.classList.add('hide');
+            previewContainer.classList.add('has-image');
+        };
+        testImg.onerror = () => {
+            bgPreview.classList.remove('show');
+            previewPlaceholder.classList.remove('hide');
+            previewContainer.classList.remove('has-image');
+            bgPreview.src = '';
+        };
+        testImg.src = url;
     }
+
     bgInput.addEventListener('input', updatePreview);
 
     saveBtn.addEventListener('click', () => {
@@ -107,4 +127,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // initial sync
     syncSwitches();
+
+    // initial preview update
+    updatePreview();
 });
